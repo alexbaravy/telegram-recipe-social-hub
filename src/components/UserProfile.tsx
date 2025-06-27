@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Edit, Settings, Share2, Award, Users, BookOpen, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const UserProfile = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const userStats = [
     { label: 'Recipes', count: 24, icon: BookOpen },
@@ -21,30 +21,44 @@ const UserProfile = () => {
     { title: 'Community Star', icon: '🌟', description: 'Top 10% creators' },
   ];
 
+  const categories = [
+    { id: 'all', name: 'All Recipes' },
+    { id: 'breakfast', name: 'Breakfast' },
+    { id: 'lunch', name: 'Lunch' },
+    { id: 'dinner', name: 'Dinner' },
+    { id: 'dessert', name: 'Dessert' },
+    { id: 'snack', name: 'Snacks' },
+  ];
+
   const recentRecipes = [
     {
       id: 1,
       title: "Creamy Carbonara",
       image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=150&h=150&fit=crop",
-      likes: 234
+      likes: 234,
+      category: 'dinner'
     },
     {
       id: 2,
       title: "Buddha Bowl",
       image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150&h=150&fit=crop",
-      likes: 189
+      likes: 189,
+      category: 'lunch'
     },
     {
       id: 3,
       title: "Chocolate Cake",
       image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=150&h=150&fit=crop",
-      likes: 456
+      likes: 456,
+      category: 'dessert'
     }
   ];
 
-  const filteredRecipes = recentRecipes.filter(recipe =>
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredRecipes = recentRecipes.filter(recipe => {
+    const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || recipe.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-6">
@@ -135,6 +149,25 @@ const UserProfile = () => {
               />
             </div>
 
+            {/* Category Filter */}
+            <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`whitespace-nowrap ${
+                    selectedCategory === category.id
+                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                      : 'border-orange-200 text-orange-600 hover:bg-orange-50'
+                  }`}
+                >
+                  {category.name}
+                </Button>
+              ))}
+            </div>
+
             {/* Recipes Grid */}
             <div className="grid grid-cols-2 gap-3">
               {filteredRecipes.map(recipe => (
@@ -154,9 +187,14 @@ const UserProfile = () => {
             </div>
 
             {/* No Results Message */}
-            {filteredRecipes.length === 0 && searchQuery && (
+            {filteredRecipes.length === 0 && (searchQuery || selectedCategory !== 'all') && (
               <div className="text-center py-8">
-                <p className="text-gray-500">No recipes found matching "{searchQuery}"</p>
+                <p className="text-gray-500">
+                  {searchQuery 
+                    ? `No recipes found matching "${searchQuery}"${selectedCategory !== 'all' ? ` in ${categories.find(c => c.id === selectedCategory)?.name}` : ''}`
+                    : `No recipes found in ${categories.find(c => c.id === selectedCategory)?.name}`
+                  }
+                </p>
               </div>
             )}
           </TabsContent>
