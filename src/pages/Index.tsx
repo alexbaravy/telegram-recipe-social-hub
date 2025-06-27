@@ -162,7 +162,7 @@ const Index = () => {
           <div className="flex justify-around">
             {[
               { icon: Home, label: 'Home', view: 'home' },
-              { icon: BookOpen, label: 'Recipes', view: 'recipes' },
+              { icon: BookOpen, label: 'My Recipes', view: 'recipes' },
               { icon: Users, label: 'Following', view: 'following' },
               { icon: User, label: 'Profile', view: 'profile' }
             ].map(({ icon: Icon, label, view }) => (
