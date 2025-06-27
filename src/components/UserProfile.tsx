@@ -1,11 +1,14 @@
 
-import React from 'react';
-import { Edit, Settings, Share2, Award, Users, BookOpen } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit, Settings, Share2, Award, Users, BookOpen, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const UserProfile = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const userStats = [
     { label: 'Recipes', count: 24, icon: BookOpen },
     { label: 'Followers', count: 1234, icon: Users },
@@ -38,6 +41,10 @@ const UserProfile = () => {
       likes: 456
     }
   ];
+
+  const filteredRecipes = recentRecipes.filter(recipe =>
+    recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -117,8 +124,20 @@ const UserProfile = () => {
           </TabsList>
           
           <TabsContent value="recipes" className="p-4">
+            {/* Search Input */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                placeholder="Search your recipes..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 border-orange-200 focus:border-orange-300"
+              />
+            </div>
+
+            {/* Recipes Grid */}
             <div className="grid grid-cols-2 gap-3">
-              {recentRecipes.map(recipe => (
+              {filteredRecipes.map(recipe => (
                 <div key={recipe.id} className="relative group cursor-pointer">
                   <img 
                     src={recipe.image} 
@@ -133,6 +152,13 @@ const UserProfile = () => {
                 </div>
               ))}
             </div>
+
+            {/* No Results Message */}
+            {filteredRecipes.length === 0 && searchQuery && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No recipes found matching "{searchQuery}"</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="liked" className="p-4">
