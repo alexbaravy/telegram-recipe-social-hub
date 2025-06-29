@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, Clock, ChefHat } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Clock, ChefHat, ExternalLink } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
@@ -19,15 +19,23 @@ interface Recipe {
 
 interface RecipeCardProps {
   recipe: Recipe;
+  onRecipeClick?: (recipe: Recipe) => void;
 }
 
-const RecipeCard = ({ recipe }: RecipeCardProps) => {
+const RecipeCard = ({ recipe, onRecipeClick }: RecipeCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(recipe.likes);
 
-  const handleLike = () => {
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsLiked(!isLiked);
     setLikes(isLiked ? likes - 1 : likes + 1);
+  };
+
+  const handleCardClick = () => {
+    if (onRecipeClick) {
+      onRecipeClick(recipe);
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -40,7 +48,10 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-all duration-200">
+    <div 
+      className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer group"
+      onClick={handleCardClick}
+    >
       {/* Author Header */}
       <div className="flex items-center space-x-3 p-4 pb-3">
         <Avatar className="w-10 h-10">
@@ -51,7 +62,12 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
           <p className="font-semibold text-gray-800">{recipe.author}</p>
           <p className="text-sm text-gray-500">2 hours ago</p>
         </div>
-        <Button variant="ghost" size="sm" className="text-orange-600 hover:bg-orange-50">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-orange-600 hover:bg-orange-50"
+          onClick={(e) => e.stopPropagation()}
+        >
           Follow
         </Button>
       </div>
@@ -63,6 +79,9 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
           alt={recipe.title}
           className="w-full h-64 object-cover"
         />
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+          <ExternalLink className="w-8 h-8 text-white opacity-0 group-hover:opacity-80 transition-opacity duration-200" />
+        </div>
         <div className="absolute top-3 right-3 flex space-x-2">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(recipe.difficulty)}`}>
             {recipe.difficulty}
@@ -96,13 +115,19 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
               </span>
             </button>
             
-            <button className="flex items-center space-x-1 group">
+            <button 
+              className="flex items-center space-x-1 group"
+              onClick={(e) => e.stopPropagation()}
+            >
               <MessageCircle className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
               <span className="text-sm font-medium text-gray-500">{recipe.comments}</span>
             </button>
           </div>
 
-          <button className="flex items-center space-x-1 group">
+          <button 
+            className="flex items-center space-x-1 group"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Share2 className="w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors" />
           </button>
         </div>

@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { Edit, Settings, Share2, Award, Users, BookOpen, Search } from 'lucide-react';
+import { Edit, Settings, Share2, Award, Users, BookOpen, Search, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfileEdit from './ProfileEdit';
+import RecipeDetail from './RecipeDetail';
 
 const UserProfile = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [profileData, setProfileData] = useState({
+    name: 'Your Name',
+    bio: 'Passionate home cook sharing delicious recipes 🍳',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+  });
 
   const userStats = [
     { label: 'Recipes', count: 24, icon: BookOpen },
@@ -34,22 +43,40 @@ const UserProfile = () => {
     {
       id: 1,
       title: "Creamy Carbonara",
+      author: "Your Name",
+      authorAvatar: profileData.avatar,
       image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=150&h=150&fit=crop",
       likes: 234,
+      comments: 18,
+      time: "25 mins",
+      difficulty: "Easy",
+      description: "Rich and creamy carbonara with authentic Italian flavors. Perfect for a cozy dinner!",
       category: 'dinner'
     },
     {
       id: 2,
       title: "Buddha Bowl",
+      author: "Your Name",  
+      authorAvatar: profileData.avatar,
       image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150&h=150&fit=crop",
       likes: 189,
+      comments: 12,
+      time: "15 mins",
+      difficulty: "Easy",
+      description: "Healthy and colorful bowl packed with Mediterranean flavors and fresh ingredients.",
       category: 'lunch'
     },
     {
       id: 3,
       title: "Chocolate Cake",
+      author: "Your Name",
+      authorAvatar: profileData.avatar,
       image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=150&h=150&fit=crop",
       likes: 456,
+      comments: 32,
+      time: "30 mins",
+      difficulty: "Medium",
+      description: "Decadent chocolate dessert with a molten center. Pure indulgence!",
       category: 'dessert'
     }
   ];
@@ -60,18 +87,26 @@ const UserProfile = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleProfileSave = (newProfileData) => {
+    setProfileData(newProfileData);
+  };
+
+  const handleRecipeClick = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile Header */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
         <div className="flex items-start space-x-4">
           <Avatar className="w-20 h-20">
-            <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" />
+            <AvatarImage src={profileData.avatar} />
             <AvatarFallback>YU</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-800">Your Name</h2>
-            <p className="text-gray-600 text-sm mb-3">Passionate home cook sharing delicious recipes 🍳</p>
+            <h2 className="text-xl font-bold text-gray-800">{profileData.name}</h2>
+            <p className="text-gray-600 text-sm mb-3">{profileData.bio}</p>
             
             {/* Stats */}
             <div className="flex space-x-6 mb-4">
@@ -88,7 +123,11 @@ const UserProfile = () => {
 
             {/* Action Buttons */}
             <div className="flex space-x-2">
-              <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white"
+                onClick={() => setShowProfileEdit(true)}
+              >
                 <Edit className="w-4 h-4 mr-1" />
                 Edit Profile
               </Button>
@@ -171,13 +210,15 @@ const UserProfile = () => {
             {/* Recipes Grid */}
             <div className="grid grid-cols-2 gap-3">
               {filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="relative group cursor-pointer">
+                <div key={recipe.id} className="relative group cursor-pointer" onClick={() => handleRecipeClick(recipe)}>
                   <img 
                     src={recipe.image} 
                     alt={recipe.title}
                     className="w-full h-32 object-cover rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg" />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
+                    <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  </div>
                   <div className="absolute bottom-2 left-2 right-2">
                     <p className="text-white text-sm font-medium truncate">{recipe.title}</p>
                     <p className="text-white text-xs opacity-90">{recipe.likes} likes</p>
@@ -212,6 +253,21 @@ const UserProfile = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modals */}
+      {showProfileEdit && (
+        <ProfileEdit 
+          onClose={() => setShowProfileEdit(false)}
+          onSave={handleProfileSave}
+        />
+      )}
+
+      {selectedRecipe && (
+        <RecipeDetail 
+          recipe={selectedRecipe}
+          onClose={() => setSelectedRecipe(null)}
+        />
+      )}
     </div>
   );
 };

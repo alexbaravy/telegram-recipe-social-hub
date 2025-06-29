@@ -7,10 +7,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import RecipeCard from '@/components/RecipeCard';
 import CreateRecipe from '@/components/CreateRecipe';
 import UserProfile from '@/components/UserProfile';
+import RecipeDetail from '@/components/RecipeDetail';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('home');
   const [showCreateRecipe, setShowCreateRecipe] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const mockRecipes = [
     {
@@ -51,6 +53,10 @@ const Index = () => {
     }
   ];
 
+  const handleRecipeClick = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
   const renderContent = () => {
     switch (currentView) {
       case 'profile':
@@ -61,7 +67,11 @@ const Index = () => {
             <h2 className="text-2xl font-bold text-gray-800">My Recipes</h2>
             <div className="grid gap-4">
               {mockRecipes.map(recipe => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
+                <RecipeCard 
+                  key={recipe.id} 
+                  recipe={recipe} 
+                  onRecipeClick={handleRecipeClick}
+                />
               ))}
             </div>
           </div>
@@ -120,7 +130,11 @@ const Index = () => {
             {/* Recipe Feed */}
             <div className="space-y-6">
               {mockRecipes.map(recipe => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
+                <RecipeCard 
+                  key={recipe.id} 
+                  recipe={recipe} 
+                  onRecipeClick={handleRecipeClick}
+                />
               ))}
             </div>
           </div>
@@ -183,9 +197,16 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Create Recipe Modal */}
+      {/* Modals */}
       {showCreateRecipe && (
         <CreateRecipe onClose={() => setShowCreateRecipe(false)} />
+      )}
+
+      {selectedRecipe && (
+        <RecipeDetail 
+          recipe={selectedRecipe}
+          onClose={() => setSelectedRecipe(null)}
+        />
       )}
     </div>
   );
