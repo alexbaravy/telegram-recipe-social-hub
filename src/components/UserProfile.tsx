@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
-import { Edit, Settings, Share2, Award, Users, BookOpen, Search, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfileHeader from './ProfileHeader';
+import UserAchievements from './UserAchievements';
+import RecipeFilters from './RecipeFilters';
+import RecipeGrid from './RecipeGrid';
 import ProfileEdit from './ProfileEdit';
 import RecipeDetail from './RecipeDetail';
 import FollowersModal from './FollowersModal';
@@ -21,18 +22,6 @@ const UserProfile = () => {
     bio: 'Passionate home cook sharing delicious recipes 🍳',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
   });
-
-  const userStats = [
-    { label: 'Recipes', count: 24, icon: BookOpen },
-    { label: 'Followers', count: 1234, icon: Users, clickable: true, onClick: () => setShowFollowersModal('followers') },
-    { label: 'Following', count: 89, icon: Users, clickable: true, onClick: () => setShowFollowersModal('following') },
-  ];
-
-  const achievements = [
-    { title: 'Master Chef', icon: '👨‍🍳', description: 'Created 10+ recipes' },
-    { title: 'Popular Creator', icon: '⭐', description: '1000+ total likes' },
-    { title: 'Community Star', icon: '🌟', description: 'Top 10% creators' },
-  ];
 
   const categories = [
     { id: 'all', name: 'All Recipes' },
@@ -95,86 +84,18 @@ const UserProfile = () => {
     setProfileData(newProfileData);
   };
 
-  const handleRecipeClick = (recipe) => {
-    setSelectedRecipe(recipe);
-  };
-
   return (
     <div className="space-y-6">
-      {/* Profile Header */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
-        <div className="flex items-start space-x-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={profileData.avatar} />
-            <AvatarFallback>YU</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold text-gray-800">{profileData.name}</h2>
-            <p className="text-gray-600 text-sm mb-3">{profileData.bio}</p>
-            
-            {/* Stats */}
-            <div className="flex space-x-6 mb-4">
-              {userStats.map(({ label, count, icon: Icon, clickable, onClick }) => (
-                <div 
-                  key={label} 
-                  className={`text-center ${clickable ? 'cursor-pointer hover:bg-orange-50 p-2 rounded-lg transition-colors' : ''}`}
-                  onClick={clickable ? onClick : undefined}
-                >
-                  <div className="flex items-center justify-center space-x-1">
-                    <Icon className="w-4 h-4 text-orange-600" />
-                    <span className="font-bold text-gray-800">{count}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">{label}</span>
-                </div>
-              ))}
-            </div>
+      <ProfileHeader 
+        profileData={profileData}
+        onEditProfile={() => setShowProfileEdit(true)}
+        onSettings={() => setShowSettingsModal(true)}
+        onFollowersClick={() => setShowFollowersModal('followers')}
+        onFollowingClick={() => setShowFollowersModal('following')}
+      />
 
-            {/* Action Buttons */}
-            <div className="flex space-x-2">
-              <Button 
-                size="sm" 
-                className="bg-gradient-to-r from-orange-500 to-red-500 text-white"
-                onClick={() => setShowProfileEdit(true)}
-              >
-                <Edit className="w-4 h-4 mr-1" />
-                Edit Profile
-              </Button>
-              <Button variant="outline" size="sm" className="border-orange-200 text-orange-600">
-                <Share2 className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-orange-200 text-orange-600"
-                onClick={() => setShowSettingsModal(true)}
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserAchievements />
 
-      {/* Achievements */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-orange-100">
-        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-          <Award className="w-5 h-5 text-orange-600 mr-2" />
-          Achievements
-        </h3>
-        <div className="grid grid-cols-1 gap-3">
-          {achievements.map((achievement, index) => (
-            <div key={index} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-100">
-              <span className="text-2xl">{achievement.icon}</span>
-              <div>
-                <p className="font-medium text-gray-800">{achievement.title}</p>
-                <p className="text-sm text-gray-600">{achievement.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Content Tabs */}
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
         <Tabs defaultValue="recipes" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-orange-50 border-b border-orange-100">
@@ -190,67 +111,20 @@ const UserProfile = () => {
           </TabsList>
           
           <TabsContent value="recipes" className="p-4">
-            {/* Search Input */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                placeholder="Search your recipes..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-orange-200 focus:border-orange-300"
-              />
-            </div>
+            <RecipeFilters 
+              searchQuery={searchQuery}
+              selectedCategory={selectedCategory}
+              onSearchChange={setSearchQuery}
+              onCategoryChange={setSelectedCategory}
+            />
 
-            {/* Category Filter */}
-            <div className="flex space-x-2 mb-4 overflow-x-auto pb-2">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`whitespace-nowrap ${
-                    selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                      : 'border-orange-200 text-orange-600 hover:bg-orange-50'
-                  }`}
-                >
-                  {category.name}
-                </Button>
-              ))}
-            </div>
-
-            {/* Recipes Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {filteredRecipes.map(recipe => (
-                <div key={recipe.id} className="relative group cursor-pointer" onClick={() => handleRecipeClick(recipe)}>
-                  <img 
-                    src={recipe.image} 
-                    alt={recipe.title}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
-                    <ExternalLink className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  </div>
-                  <div className="absolute bottom-2 left-2 right-2">
-                    <p className="text-white text-sm font-medium truncate">{recipe.title}</p>
-                    <p className="text-white text-xs opacity-90">{recipe.likes} likes</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* No Results Message */}
-            {filteredRecipes.length === 0 && (searchQuery || selectedCategory !== 'all') && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">
-                  {searchQuery 
-                    ? `No recipes found matching "${searchQuery}"${selectedCategory !== 'all' ? ` in ${categories.find(c => c.id === selectedCategory)?.name}` : ''}`
-                    : `No recipes found in ${categories.find(c => c.id === selectedCategory)?.name}`
-                  }
-                </p>
-              </div>
-            )}
+            <RecipeGrid 
+              recipes={filteredRecipes}
+              searchQuery={searchQuery}
+              selectedCategory={selectedCategory}
+              categories={categories}
+              onRecipeClick={setSelectedRecipe}
+            />
           </TabsContent>
           
           <TabsContent value="liked" className="p-4">
