@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, Plus, Search, User, Home, BookOpen, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,11 +7,14 @@ import RecipeCard from '@/components/RecipeCard';
 import CreateRecipe from '@/components/CreateRecipe';
 import UserProfile from '@/components/UserProfile';
 import RecipeDetail from '@/components/RecipeDetail';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('home');
   const [showCreateRecipe, setShowCreateRecipe] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [followingStates, setFollowingStates] = useState<{[key: number]: boolean}>({});
+  const { toast } = useToast();
 
   const mockRecipes = [
     {
@@ -53,8 +55,56 @@ const Index = () => {
     }
   ];
 
+  const followingUsers = [
+    {
+      id: 1,
+      author: "Chef Maria",
+      authorAvatar: "https://images.unsplash.com/photo-1494790108755-2616c78938d8?w=100&h=100&fit=crop&crop=face",
+      lastActive: "2h ago",
+      isFollowing: true
+    },
+    {
+      id: 2,
+      author: "Sarah Green",
+      authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      lastActive: "4h ago",
+      isFollowing: true
+    },
+    {
+      id: 3,
+      author: "Baker Tom",
+      authorAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+      lastActive: "1d ago",
+      isFollowing: true
+    },
+    {
+      id: 4,
+      author: "Emily Cook",
+      authorAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+      lastActive: "3d ago",
+      isFollowing: false
+    }
+  ];
+
   const handleRecipeClick = (recipe) => {
     setSelectedRecipe(recipe);
+  };
+
+  const handleFollowUser = (userId: number) => {
+    const currentState = followingStates[userId] ?? followingUsers.find(u => u.id === userId)?.isFollowing ?? false;
+    setFollowingStates(prev => ({
+      ...prev,
+      [userId]: !currentState
+    }));
+    
+    toast({
+      title: !currentState ? "Following" : "Unfollowed",
+      description: `You are ${!currentState ? "now following" : "no longer following"} this user`,
+    });
+  };
+
+  const isUserFollowing = (userId: number) => {
+    return followingStates[userId] ?? followingUsers.find(u => u.id === userId)?.isFollowing ?? false;
   };
 
   const renderContent = () => {
@@ -80,20 +130,66 @@ const Index = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-800">Following</h2>
+            
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                placeholder="Search people you follow..." 
+                className="pl-10 border-orange-200 focus:border-orange-300"
+              />
+            </div>
+
+            {/* Following Users List */}
             <div className="space-y-3">
-              {mockRecipes.map(recipe => (
-                <div key={recipe.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm">
+              {followingUsers.map(user => (
+                <div key={user.id} className="flex items-center space-x-3 p-4 bg-white rounded-lg shadow-sm border border-orange-100">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src={recipe.authorAvatar} />
-                    <AvatarFallback>{recipe.author[0]}</AvatarFallback>
+                    <AvatarImage src={user.authorAvatar} />
+                    <AvatarFallback>{user.author[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-800">{recipe.author}</p>
-                    <p className="text-sm text-gray-500">Active 2h ago</p>
+                    <p className="font-medium text-gray-800">{user.author}</p>
+                    <p className="text-sm text-gray-500">Active {user.lastActive}</p>
                   </div>
-                  <Button variant="outline" size="sm">Following</Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className={`${
+                      isUserFollowing(user.id)
+                        ? 'border-orange-200 text-orange-600 bg-orange-50' 
+                        : 'border-orange-200 text-orange-600'
+                    }`}
+                    onClick={() => handleFollowUser(user.id)}
+                  >
+                    {isUserFollowing(user.id) ? 'Following' : 'Follow'}
+                  </Button>
                 </div>
               ))}
+            </div>
+
+            {/* Suggested Users */}
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">Suggested for You</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {followingUsers.filter(user => !isUserFollowing(user.id)).map(user => (
+                  <div key={`suggested-${user.id}`} className="p-3 bg-white rounded-lg shadow-sm border border-orange-100 text-center">
+                    <Avatar className="w-16 h-16 mx-auto mb-2">
+                      <AvatarImage src={user.authorAvatar} />
+                      <AvatarFallback>{user.author[0]}</AvatarFallback>
+                    </Avatar>
+                    <p className="font-medium text-gray-800 text-sm mb-1">{user.author}</p>
+                    <p className="text-xs text-gray-500 mb-2">12 mutual followers</p>
+                    <Button 
+                      size="sm" 
+                      className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-1"
+                      onClick={() => handleFollowUser(user.id)}
+                    >
+                      Follow
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );

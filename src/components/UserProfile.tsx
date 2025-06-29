@@ -6,12 +6,16 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileEdit from './ProfileEdit';
 import RecipeDetail from './RecipeDetail';
+import FollowersModal from './FollowersModal';
+import SettingsModal from './SettingsModal';
 
 const UserProfile = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [showFollowersModal, setShowFollowersModal] = useState<'followers' | 'following' | null>(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'Your Name',
     bio: 'Passionate home cook sharing delicious recipes 🍳',
@@ -20,8 +24,8 @@ const UserProfile = () => {
 
   const userStats = [
     { label: 'Recipes', count: 24, icon: BookOpen },
-    { label: 'Followers', count: 1234, icon: Users },
-    { label: 'Following', count: 89, icon: Users },
+    { label: 'Followers', count: 1234, icon: Users, clickable: true, onClick: () => setShowFollowersModal('followers') },
+    { label: 'Following', count: 89, icon: Users, clickable: true, onClick: () => setShowFollowersModal('following') },
   ];
 
   const achievements = [
@@ -110,8 +114,12 @@ const UserProfile = () => {
             
             {/* Stats */}
             <div className="flex space-x-6 mb-4">
-              {userStats.map(({ label, count, icon: Icon }) => (
-                <div key={label} className="text-center">
+              {userStats.map(({ label, count, icon: Icon, clickable, onClick }) => (
+                <div 
+                  key={label} 
+                  className={`text-center ${clickable ? 'cursor-pointer hover:bg-orange-50 p-2 rounded-lg transition-colors' : ''}`}
+                  onClick={clickable ? onClick : undefined}
+                >
                   <div className="flex items-center justify-center space-x-1">
                     <Icon className="w-4 h-4 text-orange-600" />
                     <span className="font-bold text-gray-800">{count}</span>
@@ -134,7 +142,12 @@ const UserProfile = () => {
               <Button variant="outline" size="sm" className="border-orange-200 text-orange-600">
                 <Share2 className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm" className="border-orange-200 text-orange-600">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-orange-200 text-orange-600"
+                onClick={() => setShowSettingsModal(true)}
+              >
                 <Settings className="w-4 h-4" />
               </Button>
             </div>
@@ -267,6 +280,17 @@ const UserProfile = () => {
           recipe={selectedRecipe}
           onClose={() => setSelectedRecipe(null)}
         />
+      )}
+
+      {showFollowersModal && (
+        <FollowersModal 
+          type={showFollowersModal}
+          onClose={() => setShowFollowersModal(null)}
+        />
+      )}
+
+      {showSettingsModal && (
+        <SettingsModal onClose={() => setShowSettingsModal(false)} />
       )}
     </div>
   );
