@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Edit, Settings, Share2 } from 'lucide-react';
+import { Edit, Settings, Share2, BookOpen, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import UserStats from './UserStats';
@@ -27,9 +27,9 @@ const ProfileHeader = ({
   onFollowingClick 
 }: ProfileHeaderProps) => {
   const userStats = [
-    { label: 'Recipes', count: 24, icon: require('lucide-react').BookOpen },
-    { label: 'Followers', count: 1234, icon: require('lucide-react').Users, clickable: true, onClick: onFollowersClick },
-    { label: 'Following', count: 89, icon: require('lucide-react').Users, clickable: true, onClick: onFollowingClick },
+    { label: 'Recipes', count: 24, icon: BookOpen },
+    { label: 'Followers', count: 1234, icon: Users, clickable: true, onClick: onFollowersClick },
+    { label: 'Following', count: 89, icon: Users, clickable: true, onClick: onFollowingClick },
   ];
 
   return (
