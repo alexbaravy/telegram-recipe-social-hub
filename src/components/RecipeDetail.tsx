@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { X, Heart, MessageCircle, Share2, Clock, ChefHat, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useToast } from '@/hooks/use-toast';
 
 interface Recipe {
   id: number;
@@ -25,10 +26,43 @@ interface RecipeDetailProps {
 const RecipeDetail = ({ recipe, onClose }: RecipeDetailProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(recipe.likes);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const { toast } = useToast();
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikes(isLiked ? likes - 1 : likes + 1);
+  };
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    toast({
+      title: isFollowing ? "Unfollowed" : "Following",
+      description: `You are ${isFollowing ? "no longer following" : "now following"} ${recipe.author}`,
+    });
+  };
+
+  const handleComment = () => {
+    toast({
+      title: "Comments",
+      description: "Comment functionality coming soon!",
+    });
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: recipe.title,
+        text: recipe.description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copied!",
+        description: "Recipe link copied to clipboard",
+      });
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -101,8 +135,17 @@ const RecipeDetail = ({ recipe, onClose }: RecipeDetailProps) => {
                 <p className="font-semibold text-gray-800">{recipe.author}</p>
                 <p className="text-sm text-gray-500">2 hours ago</p>
               </div>
-              <Button variant="outline" size="sm" className="border-orange-200 text-orange-600">
-                Follow
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`${
+                  isFollowing 
+                    ? 'border-orange-200 text-orange-600 bg-orange-50' 
+                    : 'border-orange-200 text-orange-600'
+                }`}
+                onClick={handleFollow}
+              >
+                {isFollowing ? 'Following' : 'Follow'}
               </Button>
             </div>
           </div>
@@ -128,12 +171,18 @@ const RecipeDetail = ({ recipe, onClose }: RecipeDetailProps) => {
               </span>
             </button>
             
-            <button className="flex items-center space-x-2 group">
+            <button 
+              className="flex items-center space-x-2 group"
+              onClick={handleComment}
+            >
               <MessageCircle className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
               <span className="font-medium text-gray-500">{recipe.comments}</span>
             </button>
 
-            <button className="flex items-center space-x-2 group">
+            <button 
+              className="flex items-center space-x-2 group"
+              onClick={handleShare}
+            >
               <Share2 className="w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors" />
               <span className="font-medium text-gray-500">Share</span>
             </button>
