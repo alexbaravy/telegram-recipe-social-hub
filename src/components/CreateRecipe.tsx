@@ -82,15 +82,15 @@ const CreateRecipe = ({ onClose }: CreateRecipeProps) => {
   );
 
   const renderUrlMode = () => (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-3 mb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center space-x-3 mb-4 px-4 pt-4">
         <Button variant="ghost" size="sm" onClick={() => setMode('selection')}>
           <X className="w-4 h-4" />
         </Button>
         <h2 className="text-xl font-bold text-gray-800">Add Recipe by URL</h2>
       </div>
 
-      <div className="px-4 space-y-4">
+      <div className="flex-1 px-4 pb-4 space-y-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Recipe URL</label>
           <div className="flex space-x-2">
@@ -105,30 +105,30 @@ const CreateRecipe = ({ onClose }: CreateRecipeProps) => {
             Enter a URL from popular recipe sites like AllRecipes, Food Network, etc.
           </p>
         </div>
+      </div>
 
-        <div className="pt-4">
-          <Button
-            onClick={handleUrlSubmit}
-            disabled={!url.trim()}
-            className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-3 rounded-full"
-          >
-            Import Recipe
-          </Button>
-        </div>
+      <div className="p-4 border-t border-gray-200 bg-gray-50 mt-auto">
+        <Button
+          onClick={handleUrlSubmit}
+          disabled={!url.trim()}
+          className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-3 rounded-full"
+        >
+          Import Recipe
+        </Button>
       </div>
     </div>
   );
 
   const renderManualMode = () => (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-3 mb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center space-x-3 mb-4 px-4 pt-4">
         <Button variant="ghost" size="sm" onClick={() => setMode('selection')}>
           <X className="w-4 h-4" />
         </Button>
         <h2 className="text-xl font-bold text-gray-800">Create Recipe Manually</h2>
       </div>
 
-      <div className="overflow-y-auto max-h-[calc(90vh-180px)] px-4 space-y-6">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
         {/* Image Upload */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Recipe Photo</label>
@@ -244,7 +244,7 @@ const CreateRecipe = ({ onClose }: CreateRecipeProps) => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+      <div className="p-4 border-t border-gray-200 bg-gray-50 mt-auto">
         <Button 
           onClick={onClose}
           className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-3 rounded-full"
@@ -256,10 +256,10 @@ const CreateRecipe = ({ onClose }: CreateRecipeProps) => {
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
-      <div className="bg-white rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-md h-[85vh] max-h-[600px] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-800">
             {mode === 'selection' ? 'Create Recipe' : mode === 'manual' ? 'Manual Recipe' : 'Import Recipe'}
           </h2>
@@ -269,9 +269,11 @@ const CreateRecipe = ({ onClose }: CreateRecipeProps) => {
         </div>
 
         {/* Content */}
-        {mode === 'selection' && renderSelectionMode()}
-        {mode === 'url' && renderUrlMode()}
-        {mode === 'manual' && renderManualMode()}
+        <div className="flex-1 overflow-hidden">
+          {mode === 'selection' && renderSelectionMode()}
+          {mode === 'url' && renderUrlMode()}
+          {mode === 'manual' && renderManualMode()}
+        </div>
       </div>
     </div>
   );
