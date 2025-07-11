@@ -17,10 +17,13 @@ const UserProfile = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [showFollowersModal, setShowFollowersModal] = useState<'followers' | 'following' | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [activeRecipeTab, setActiveRecipeTab] = useState('my-recipes');
   const [profileData, setProfileData] = useState({
     name: 'Your Name',
     bio: 'Passionate home cook sharing delicious recipes 🍳',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    followers: 1250,
+    following: 340
   });
 
   const categories = [
@@ -74,7 +77,50 @@ const UserProfile = () => {
     }
   ];
 
-  const filteredRecipes = recentRecipes.filter(recipe => {
+  const likedRecipes = [
+    {
+      id: 4,
+      title: "Pasta Primavera",
+      author: "Chef Maria",
+      authorAvatar: "https://images.unsplash.com/photo-1494790108755-2616c78938d8?w=150&h=150&fit=crop&crop=face",
+      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=150&h=150&fit=crop",
+      likes: 145,
+      comments: 8,
+      time: "20 mins",
+      difficulty: "Easy",
+      description: "Fresh vegetables with perfectly cooked pasta.",
+      category: 'dinner'
+    }
+  ];
+
+  const savedRecipes = [
+    {
+      id: 5,
+      title: "Avocado Toast",
+      author: "Sarah Green",
+      authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=150&h=150&fit=crop",
+      likes: 89,
+      comments: 5,
+      time: "5 mins",
+      difficulty: "Easy",
+      description: "Perfect breakfast with fresh avocado on sourdough.",
+      category: 'breakfast'
+    }
+  ];
+
+  const getCurrentRecipes = () => {
+    switch (activeRecipeTab) {
+      case 'liked':
+        return likedRecipes;
+      case 'saved':
+        return savedRecipes;
+      default:
+        return recentRecipes;
+    }
+  };
+
+  const filteredRecipes = getCurrentRecipes().filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || recipe.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -82,6 +128,12 @@ const UserProfile = () => {
 
   const handleProfileSave = (newProfileData) => {
     setProfileData(newProfileData);
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveRecipeTab(tab);
+    setSearchQuery('');
+    setSelectedCategory('all');
   };
 
   return (
@@ -97,48 +149,75 @@ const UserProfile = () => {
       <UserAchievements />
 
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
-        <Tabs defaultValue="recipes" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-orange-50 border-b border-orange-100">
-            <TabsTrigger value="recipes" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
-              My Recipes
-            </TabsTrigger>
-            <TabsTrigger value="liked" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
-              Liked
-            </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
-              Saved
-            </TabsTrigger>
-          </TabsList>
+        <div className="p-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">My Recipes</h3>
           
-          <TabsContent value="recipes" className="p-4">
-            <RecipeFilters 
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-              onSearchChange={setSearchQuery}
-              onCategoryChange={setSelectedCategory}
-            />
+          {/* Recipe Sub-tabs */}
+          <Tabs value={activeRecipeTab} onValueChange={handleTabChange} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-orange-50 border border-orange-100 mb-4">
+              <TabsTrigger value="my-recipes" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
+                My Recipes
+              </TabsTrigger>
+              <TabsTrigger value="liked" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
+                Liked
+              </TabsTrigger>
+              <TabsTrigger value="saved" className="data-[state=active]:bg-white data-[state=active]:text-orange-600">
+                Saved
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="my-recipes">
+              <RecipeFilters 
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                onSearchChange={setSearchQuery}
+                onCategoryChange={setSelectedCategory}
+              />
 
-            <RecipeGrid 
-              recipes={filteredRecipes}
-              searchQuery={searchQuery}
-              selectedCategory={selectedCategory}
-              categories={categories}
-              onRecipeClick={setSelectedRecipe}
-            />
-          </TabsContent>
-          
-          <TabsContent value="liked" className="p-4">
-            <div className="text-center py-8">
-              <p className="text-gray-500">Your liked recipes will appear here</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="saved" className="p-4">
-            <div className="text-center py-8">
-              <p className="text-gray-500">Your saved recipes will appear here</p>
-            </div>
-          </TabsContent>
-        </Tabs>
+              <RecipeGrid 
+                recipes={filteredRecipes}
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                categories={categories}
+                onRecipeClick={setSelectedRecipe}
+              />
+            </TabsContent>
+            
+            <TabsContent value="liked">
+              <RecipeFilters 
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                onSearchChange={setSearchQuery}
+                onCategoryChange={setSelectedCategory}
+              />
+
+              <RecipeGrid 
+                recipes={filteredRecipes}
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                categories={categories}
+                onRecipeClick={setSelectedRecipe}
+              />
+            </TabsContent>
+            
+            <TabsContent value="saved">
+              <RecipeFilters 
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                onSearchChange={setSearchQuery}
+                onCategoryChange={setSelectedCategory}
+              />
+
+              <RecipeGrid 
+                recipes={filteredRecipes}
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                categories={categories}
+                onRecipeClick={setSelectedRecipe}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
       {/* Modals */}
